@@ -1,8 +1,15 @@
 /*!
-# Advent of Code 2021 - Day 01 - Part 1
+# Advent of Code 2021 - Day 01 - Part 2
 
-count the number of times a depth measurement increases from the previous measurement.
-In test, there are 7 measurements that are larger than the previous measurement.
+Consider sums of a three-measurement sliding window. Start by comparing the first and second
+three-measurement windows. The measurements in the first window are marked A (199, 200, 208);
+their sum is 199 + 200 + 208 = 607. The second window is marked B (200, 208, 210); its sum is
+618. The sum of measurements in the second window is larger than the sum of the first, so this
+first comparison increased.
+
+Your goal now is to count the number of times the sum of measurements in this sliding window
+increases from the previous sum. So, compare A with B, then compare B with C, then C with D,
+and so on. Stop when there aren't enough measurements left to create a new three-measurement sum.
 
 ## Panics
 
@@ -16,6 +23,7 @@ use shared::get_input_aoc;
 
 fn solve(data: &str) -> u32 {
     let mut buffer: Vec<u32> = Vec::new();
+    let mut window: Vec<u32> = Vec::with_capacity(3);
     let mut counter: u32 = 0;
 
     for val in data.lines() {
@@ -27,12 +35,22 @@ fn solve(data: &str) -> u32 {
         buffer.push(val);
     }
 
-    let mut prev_num = buffer[0];
-    for num in buffer[1..].into_iter() {
-        if num > &prev_num {
+    window.insert(0, buffer[0]);
+    window.insert(0, buffer[1]);
+    window.insert(0, buffer[2]);
+
+    let mut prev_num: u32 = window.iter().sum();
+    for num in buffer[3..].into_iter() {
+        // step the window
+        window.truncate(2);
+        window.insert(0, *num);
+
+        // compare values
+        let sum = window.iter().sum();
+        if sum > prev_num {
             counter += 1;
         }
-        prev_num = *num;
+        prev_num = sum;
     }
 
     return counter;
@@ -70,6 +88,6 @@ mod tests {
         );
 
         let result = solve(&data);
-        assert_eq!(7, result);
+        assert_eq!(5, result);
     }
 }
