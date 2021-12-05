@@ -1,10 +1,15 @@
 /*!
-# Advent of Code 2021 - Day 02 - Part 1
+# Advent of Code 2021 - Day 02 - Part 2
 
-It seems like the submarine can take a series of commands like forward 1, down 2, or up 3.
-Your horizontal position and depth both start at 0. Calculate the horizontal position and depth
-you would have after following the planned course. What do you get if you multiply your final
-horizontal position by your final depth?
+In addition to horizontal position and depth, you'll also need to track a third value, aim,
+which also starts at 0.
+
+* down X increases your aim by X units.
+* up X decreases your aim by X units.
+* forward X does two things:
+  * It increases your horizontal position by X units.
+  * It increases your depth by your aim multiplied by X.
+
 
 ## Panics
 
@@ -30,6 +35,7 @@ struct Step {
 struct Submarine {
     position: u32,
     depth: u32,
+    aim: u32,
 }
 
 impl Submarine {
@@ -37,6 +43,7 @@ impl Submarine {
         Submarine {
             position: 0,
             depth: 0,
+            aim: 0,
         }
     }
 
@@ -45,15 +52,18 @@ impl Submarine {
             Step {
                 dir: Direction::Forward,
                 val,
-            } => self.position += val,
+            } => {
+                self.position += val;
+                self.depth += val * self.aim;
+            }
             Step {
                 dir: Direction::Up,
                 val,
-            } => self.depth -= val,
+            } => self.aim -= val,
             Step {
                 dir: Direction::Down,
                 val,
-            } => self.depth += val,
+            } => self.aim += val,
         }
     }
 
@@ -115,6 +125,6 @@ mod tests {
         );
 
         let result = solve(&data);
-        assert_eq!(150, result);
+        assert_eq!(900, result);
     }
 }
